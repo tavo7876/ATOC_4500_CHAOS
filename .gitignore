@@ -1,4 +1,37 @@
-#Datasetfiles
-986f437998cb2c67bd913875435801ff.grib
+# 1. Secrets & Environment Variables
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
 
-__pycache__
+# 2. Dependencies & Package Managers
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+vendor/
+
+# 3. Build Outputs & Caches
+dist/
+build/
+out/
+.next/
+.cache/
+*.o
+*.exe
+
+# 4. Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-error.log*
+tmp/
+temp/
+
+# 5. Operating System & Editor Metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
