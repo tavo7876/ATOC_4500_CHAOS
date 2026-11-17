@@ -39,23 +39,43 @@ def load_forecast(grib_file, index_dir='indexes', FORECAST_VAR='sf'):
 
 
 
-def forecast_basin(ds, target_start, target_end,lat_bounds, lon_bounds):
+# def forecast_basin(ds, target_start, target_end,lat_bounds, lon_bounds):
 
 
 
-    sf_bounded = ds['sf'].sel(latitude = slice(lat_bounds[1], lat_bounds[0]),
-                              longitude = slice(lon_bounds[0],lon_bounds[1]))
+#     sf_bounded = ds['sf'].sel(latitude = slice(lat_bounds[1], lat_bounds[0]),
+#                               longitude = slice(lon_bounds[0],lon_bounds[1]))
 
 
-    sf_start = sf_bounded.sel(valid_time = target_start)
-    sf_end = sf_bounded.sel(valid_time = target_end)
+#     print(sf_bounded.sizes)
+
+#     print(lat_bounds, lon_bounds)
+#     print(ds.latitude.values, ds.longitude.values)
+
+#     sf_start = sf_bounded.sel(valid_time = target_start)
+#     sf_end = sf_bounded.sel(valid_time = target_end)
 
 
-    sf_diff = (sf_end - sf_start) / 25.4
+#     sf_diff = (sf_end - sf_start) / 25.4
 
-    basin_fc = sf_diff.mean(dim = ["latitude", "longitude"])
+#     basin_fc = sf_diff.mean(dim = ["latitude", "longitude"])
 
-    return basin_fc
+#     return basin_fc
+
+
+def forecast_basin(ds, target_start, target_end, station_lats, station_lons):
+    """Interpolate forecast snowfall to station locations, then average across stations."""
+    lats = xr.DataArray(np.asarray(station_lats), dims="station")
+    lons = xr.DataArray(np.asarray(station_lons) % 360, dims="station")
+
+    sf = ds['sf'].sortby('latitude')            # interp needs ascending coords
+    sf_pts = sf.interp(latitude=lats, longitude=lons, method="linear")
+
+    sf_start = sf_pts.sel(valid_time=target_start)
+    sf_end   = sf_pts.sel(valid_time=target_end)
+    sf_diff  = (sf_end - sf_start) / 25.4        # mm SWE -> inches
+
+    return sf_diff.mean(dim="station")
 
 
 
